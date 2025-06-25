@@ -1,7 +1,7 @@
 
 import React from 'react';
 
-// aici va fi "ecranul"
+// aici vor fi acele butoane cu start game, pause, scor etc"
 
 const Display = ({ message }) => {
   return (

@@ -3,11 +3,11 @@ import Pixel from './Pixel';
 
 const Stage = ({ stage }) => {
   return (
-    <div style={{ display: 'inline-block' }}>
+    <div className='stage'>
       {stage.map((row, y) => (
         <div key={y} style={{ display: 'flex' }}>
-          {row.map((color, x) => (
-            <Pixel key={x} color={color} />
+          {row.map((col, x) => (
+            <Pixel key={x} color={col.color} />
           ))}
         </div>
       ))}

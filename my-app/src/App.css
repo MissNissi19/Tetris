@@ -36,3 +36,17 @@
     transform: rotate(360deg);
   }
 }
+
+
+.wrapper-stage {
+  width: 100%;
+}
+
+.stage .pixel {
+  border: solid 1px #999;
+}
+
+.stage {
+  width: 1200px;
+  margin: 0 auto;
+}
