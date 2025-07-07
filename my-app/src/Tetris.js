@@ -15,7 +15,7 @@ const Tetris = () => {
   const [gameStarted, setGameStarted] = useState(false);
   const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
-  const [lastUpdate, setLastUpdate] = useState(0); // Pentru a forța actualizări
+  const [lastUpdate, setLastUpdate] = useState(0); 
   const intervalId = useRef(null);
 
   
