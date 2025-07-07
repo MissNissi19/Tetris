@@ -1,52 +1,129 @@
-.App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
+  *{
+    margin: 0;
+    box-sizing: border-box;
   }
-}
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+  body {
+    background-color: #FFF6FE; 
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
   }
-  to {
-    transform: rotate(360deg);
+
+  .tetris-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
   }
-}
 
+  .tetris-container h2 {
+      margin-top: 0.5em;
+      margin-bottom: 0.5em;
+      font-size: 3.5em;
+      color: #490449;
+  }
 
-.wrapper-stage {
-  width: 100%;
-}
+  .game-wrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .left-controls,
+  .right-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
 
-.stage .pixel {
-  border: solid 1px #999;
-}
+  .stage {
+    display: inline-block;
+  }
 
-.stage {
-  width: 1200px;
-  margin: 0 auto;
-}
+  .left-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .right-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .left-controls button,
+  .right-controls button {
+    padding: 12px 18px;
+    border: none;
+    border-radius: 5px;
+    background-color: #000080;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+
+  .left-controls button:hover {
+    background-color: #0056b3;
+  }
+
+  .start-button {
+    background-color: #28a745; 
+  }
+
+  .start-button:hover {
+    background-color: #218838; 
+  }
+
+  .rotate-button {
+    background-color: #ffc107; 
+    color: #212529; 
+  }
+
+  .rotate-button:hover {
+    background-color: #e0a800; 
+  }
+
+  .displays {
+    margin-top: 20px;
+  }
+
+  .display {
+    padding: 15px;
+    border: 2px solid #333;
+    border-radius: 10px;
+    background-color: #f0f0f0;
+    font-size: 1.5em;
+    color: #333;
+    text-align: center;
+    min-width: 200px;
+  }
+
+  .pixel-wrapper {
+    width: 25px;
+    height: 25px;
+  }
+
+  .pixel {
+    width: 100%;
+    height: 100%;
+    transform:
+      perspective(800px)
+      rotateY(-8deg);
+    transition: transform 1s ease 0s;
+    border-radius: 4px;
+    box-shadow:
+      rgba(0, 0, 0, 0.024) 0px 0px 0px 1px,
+      rgba(0, 0, 0, 0.05) 0px 1px 0px 0px,
+      rgba(0, 0, 0, 0.03) 0px 0px 8px 0px,
+      rgba(0, 0, 0, 0.1) 0px 20px 30px 0px;
+    
+  }
+

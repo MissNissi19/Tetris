@@ -1,39 +1,25 @@
 import './App.css';
 import Stage from './Stage';
-import React, { useState, useEffect, useRef } from 'react';
+import Display from './Display';
+import LeftControls from './LeftControls';
+import RightControls from './RightControls';
+
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Tetrominos } from './Tetrominos';
+import { createStage, createNewPlayer } from './gameInitialization';
 
-function createStage() {
-  const grid = [];
-  const rows = 20;
-  const cols = 12;
-  for (let x = 0; x < rows; x++) {
-    grid.push(Array.from(Array(cols), () => Tetrominos[0]));
-  }
-  return grid;
-}
-
-const createNewPlayer = (stage) => {
-  const pieces = Object.keys(Tetrominos).filter(key => key !== "0");
-  const randomIndex = Math.floor(Math.random() * pieces.length);
-  const randomPieceName = pieces[randomIndex];
-  const randomPiece = Tetrominos[randomPieceName];
-  const startX = Math.floor((stage[0].length / 2)) - Math.floor((randomPiece.shape[0].length / 2));
-  return {
-    position: { x: startX, y: 0 },
-    tetromino: randomPiece,
-  };
-};
-
-function Tetris() {
+const Tetris = () => {
+  
   const [stage, setStage] = useState(createStage());
   const [player, setPlayer] = useState(createNewPlayer(stage));
   const [gameStarted, setGameStarted] = useState(false);
+  const [score, setScore] = useState(0);
+  const [gameOver, setGameOver] = useState(false);
+  const [lastUpdate, setLastUpdate] = useState(0); // Pentru a forța actualizări
   const intervalId = useRef(null);
 
-
-
-  function checkCollision(currentPosition, shape, currentStage) {
+  
+  const checkCollision = useCallback((currentPosition, shape, currentStage) => {
     if (!shape || !currentStage || !currentStage[0]) return true;
     for (let row = 0; row < shape.length; row++) {
       for (let col = 0; col < shape[row].length; col++) {
@@ -45,129 +31,178 @@ function Tetris() {
             return true;
           }
           
-          if (currentStage[posY] && currentStage[posY][posX] && currentStage[posY][posX].touched) {
+          if (currentStage[posY]?.[posX]?.touched) {
             return true;
           }
         }
       }
     }
     return false;
-  }
+  }, []);
 
-  function removeLine(stageToClean) {
-    let newStage = JSON.parse(JSON.stringify(stageToClean));
-    const rows = newStage.length;
-    const cols = newStage[0].length;
-  
-    for (let row = newStage.length - 1; row >= 0; row--) {
-      if (newStage[row].every(cell => cell.touched)) {
-        newStage.splice(row, 1);
-        newStage.unshift(Array.from({ length: cols }, () => Tetrominos[0]));
+  const removeLine = useCallback((stageToClean) => {
+    let linesCleared = 0;
+    const newStage = [];
+    const rows = stageToClean.length;
+    const cols = stageToClean[0].length;
+    
+    
+    for (let row = 0; row < rows; row++) {
+      if (stageToClean[row].every(cell => cell.touched)) {
+        linesCleared++;
+      } else {
+        newStage.push([...stageToClean[row]]);
       }
     }
     
-    while (newStage.length < rows) {
-      newStage.unshift(Array.from({ length: cols }, () => Tetrominos[0]));
-    }
-    return newStage;
-  }
+    
+    const emptyRow = Array.from({ length: cols }, () => Tetrominos[0]);
+    const newRows = Array(linesCleared).fill().map(() => [...emptyRow]);
+    
+    return { 
+      stage: [...newRows, ...newStage],
+      linesCleared 
+    };
+  }, []);
 
-  const movePlayer = (xAmount) => {
-    const newPosition = { ...player.position, x: player.position.x + xAmount };
-    if (!checkCollision(newPosition, player.tetromino.shape, stage)) {
-      setPlayer(prev => ({ ...prev, position: newPosition }));
-    }
-  };
+  const startGame = useCallback(() => {
+    const freshStage = createStage();
+    setStage(freshStage);
+    setPlayer(createNewPlayer(freshStage));
+    setGameStarted(true);
+    setScore(0);
+    setGameOver(false);
+  }, []);
 
-  const rotatePlayer = () => {
-    const shape = player.tetromino.shape;
-    const rows = shape.length;
-    const cols = shape[0].length;
-    const rotated = [];
-  
-    for (let col = 0; col < cols; col++) {
-      const newRow = [];
-      for (let row = rows - 1; row >= 0; row--) {
-        newRow.push(shape[row][col]);
+  const movePlayer = useCallback((xAmount) => {
+    setPlayer(prev => {
+      const newPosition = { ...prev.position, x: prev.position.x + xAmount };
+      if (!checkCollision(newPosition, prev.tetromino.shape, stage)) {
+        return { ...prev, position: newPosition };
       }
-      rotated.push(newRow);
-    }
+      return prev;
+    });
+  }, [checkCollision, stage]);
 
-    if (!checkCollision(player.position, rotated, stage)) {
-      setPlayer(prev => ({
-        ...prev,
-        tetromino: { ...prev.tetromino, shape: rotated },
-      }));
-    }
-  };
-
-  const dropPlayer = () => {
-    const newPosition = { ...player.position, y: player.position.y + 1 };
-    if (!checkCollision(newPosition, player.tetromino.shape, stage)) {
-      setPlayer(prev => ({ ...prev, position: newPosition }));
-    } else {
+  const dropPlayer = useCallback(() => {
+    setPlayer(prev => {
+      const newPosition = { ...prev.position, y: prev.position.y + 1 };
       
-      if (player.position.y < 1) {
+      
+      if (!checkCollision(newPosition, prev.tetromino.shape, stage)) {
+        return { ...prev, position: newPosition };
+      }
+      
+      
+      if (prev.position.y < 1) {
+        setGameOver(true);
         setGameStarted(false);
-        alert('Game Over!');
-        return;
+        return prev;
       }
 
       
-      let newStage = JSON.parse(JSON.stringify(stage));
-      for (let row = 0; row < player.tetromino.shape.length; row++) {
-        for (let col = 0; col < player.tetromino.shape[row].length; col++) {
-          if (player.tetromino.shape[row][col] !== 0) {
-            const stageRow = player.position.y + row;
-            const stageCol = player.position.x + col;
+      const newStage = JSON.parse(JSON.stringify(stage));
+      for (let row = 0; row < prev.tetromino.shape.length; row++) {
+        for (let col = 0; col < prev.tetromino.shape[row].length; col++) {
+          if (prev.tetromino.shape[row][col] !== 0) {
+            const stageRow = prev.position.y + row;
+            const stageCol = prev.position.x + col;
             if (newStage[stageRow] && newStage[stageRow][stageCol]) {
               newStage[stageRow][stageCol] = {
                 ...newStage[stageRow][stageCol],
                 touched: true,
-                color: player.tetromino.color,
-                shape: player.tetromino.shape[row][col],
+                color: prev.tetromino.color,
+                shape: prev.tetromino.shape[row][col],
               };
             }
           }
         }
       }
-
       
-      newStage = removeLine(newStage);
       
-      const newPlayer = createNewPlayer(newStage);
-      if (checkCollision(newPlayer.position, newPlayer.tetromino.shape, newStage)) {
-        setGameStarted(false);
-        alert('Game Over!');
-        setStage(newStage); 
-        return;
-      }
+      const { stage: cleanedStage, linesCleared } = removeLine(newStage);
       
      
-      setStage(newStage);
-      setPlayer(newPlayer);
-    }
-  };
+      if (linesCleared > 0) {
+        const linePoints = [10, 30, 50, 80]; 
+        const points = linePoints[Math.min(linesCleared - 1, linePoints.length - 1)];
+        setScore(prevScore => prevScore + points);
+      }
+      
+      
+      setStage(cleanedStage);
+      
+      
+      const newPlayer = createNewPlayer(cleanedStage);
+      if (checkCollision(newPlayer.position, newPlayer.tetromino.shape, cleanedStage)) {
+        setGameOver(true);
+        setGameStarted(false);
+      } else {
+        setPlayer(newPlayer);
+      }
+      
+      return prev;
+    });
+  }, [checkCollision, removeLine, stage]);
 
-  function startGame() {
-    const freshStage = createStage();
-    setStage(freshStage);
-    setPlayer(createNewPlayer(freshStage));
-    setGameStarted(true);
-  }
+  const rotatePlayer = useCallback(() => {
+    setPlayer(prev => {
+      const shape = prev.tetromino.shape;
+      const rows = shape.length;
+      const cols = shape[0].length;
+      const rotated = [];
+    
+      for (let col = 0; col < cols; col++) {
+        const newRow = [];
+        for (let row = rows - 1; row >= 0; row--) {
+          newRow.push(shape[row][col]);
+        }
+        rotated.push(newRow);
+      }
+
+      if (!checkCollision(prev.position, rotated, stage)) {
+        return {
+          ...prev,
+          tetromino: { ...prev.tetromino, shape: rotated },
+        };
+      }
+      return prev;
+    });
+  }, [checkCollision, stage]);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (!gameStarted) return;
+      
+      if (e.key === 'ArrowLeft') movePlayer(-1);
+      else if (e.key === 'ArrowRight') movePlayer(1);
+      else if (e.key === 'ArrowDown') dropPlayer();
+      else if (e.key === 'ArrowUp') rotatePlayer();
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [gameStarted, dropPlayer, movePlayer, rotatePlayer]);
 
   
   useEffect(() => {
-    if (gameStarted) {
-      if (intervalId.current) clearInterval(intervalId.current);
-      intervalId.current = setInterval(dropPlayer, 1000);
-    }
+    if (!gameStarted) return;
+    
+    if (intervalId.current) clearInterval(intervalId.current);
+    
+    const timer = setInterval(() => {
+      if (gameStarted) {
+        dropPlayer();
+      }
+    }, 1000);
+    
+    intervalId.current = timer;
+    
     return () => {
       if (intervalId.current) clearInterval(intervalId.current);
     };
-  }, [gameStarted, player]); 
+  }, [gameStarted, dropPlayer]);
 
- 
   const displayStage = JSON.parse(JSON.stringify(stage));
   if (gameStarted) {
     for (let row = 0; row < player.tetromino.shape.length; row++) {
@@ -188,14 +223,22 @@ function Tetris() {
   }
 
   return (
-    <div>
+    <div className="tetris-container">
       <h2>Tetris</h2>
-      <button onClick={() => dropPlayer()}>muta jos</button>
-      <button onClick={() => movePlayer(1)}>muta dreapta</button>
-      <button onClick={() => movePlayer(-1)}>muta stanga</button>
-      <button onClick={startGame}>start Game</button>
-      <button onClick={rotatePlayer}>rotate</button>
-      <Stage stage={displayStage} />
+      <div className="game-wrapper">
+        <LeftControls 
+          movePlayer={movePlayer}
+          dropPlayer={dropPlayer}
+        />
+        <Stage stage={displayStage} />
+        <RightControls
+          startGame={startGame}
+          rotatePlayer={rotatePlayer}
+        />
+      </div>
+      <div className="displays">
+        <Display score={score} gameOver={gameOver} />
+      </div>
     </div>
   );
 }

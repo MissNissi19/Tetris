@@ -1,13 +1,13 @@
-import React from 'react';
+
 
 export const Tetrominos = {
-        0: {shape: [0,0, 0], color: "white", touched: false },
+        0: {shape: [0,0, 0], color: "#F0FFFF", touched: false },
         I: {shape: [
             ["I", 0, 0, 0], 
             ["I", 0, 0, 0], 
             ["I", 0, 0, 0], 
             ["I", 0, 0, 0]], 
-           color: "rgb(255, 165, 0)", 
+           color: "#FCEC0B", 
            touched: false,
         },
         
@@ -16,7 +16,7 @@ export const Tetrominos = {
             ["J","J","J"],
             [0,   0,   0]
             ], 
-           color: "rgb(0, 42, 255)",
+           color: "#094A20",
            touched: false,
         },
 
@@ -25,7 +25,7 @@ export const Tetrominos = {
             ["L",  0, 0],
             ["L", "L", 0]
             ], 
-           color: "rgb(227, 53, 120)",
+           color: "#95054F",
            touched: false,
         },
 
@@ -34,7 +34,7 @@ export const Tetrominos = {
                 ["S",   "S", 0],
                 [0, 0, 0]
             ], 
-            color: "rgba(43, 242, 83, 0.95)",
+            color: "#545962",
             touched: false,
         },
 
@@ -43,7 +43,7 @@ export const Tetrominos = {
                 [0,   "T",  0],
                 [0, 0,   0]
             ], 
-            color: "rgb(33, 24, 78)",
+            color: "#FF69B4",
             touched: false,
         },
 
@@ -52,7 +52,7 @@ export const Tetrominos = {
                 [0,   "Z",  "Z"],
                 [0, 0,   0]
             ], 
-            color: "rgb(80, 111, 80)",
+            color: "#5A1A87",
             touched: false,
         },
 
@@ -62,7 +62,7 @@ export const Tetrominos = {
               ["O", "O", 0],
               [0, 0, 0]
             ],
-            color: "blue",
+            color: "#40E0D0",
             touched: false,
           }
 }
