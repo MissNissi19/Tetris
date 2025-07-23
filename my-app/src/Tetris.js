@@ -2,11 +2,12 @@ import './App.css';
 import Stage from './Stage';
 import Display from './Display';
 import LeftControls from './LeftControls';
+import NextPiece from './NextPiece';
 import RightControls from './RightControls';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Tetrominos } from './Tetrominos';
-import { createStage, createNewPlayer } from './gameInitialization';
+import { createStage, createNewPlayer } from './GameInitialization';
 
 const Tetris = () => {
   
@@ -15,8 +16,8 @@ const Tetris = () => {
   const [gameStarted, setGameStarted] = useState(false);
   const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
-  const [lastUpdate, setLastUpdate] = useState(0); 
   const intervalId = useRef(null);
+  const [nextPiece, setNextPiece] = useState(null);
 
   
   const checkCollision = useCallback((currentPosition, shape, currentStage) => {
@@ -67,8 +68,12 @@ const Tetris = () => {
 
   const startGame = useCallback(() => {
     const freshStage = createStage();
+    const firstPlayer = createNewPlayer(freshStage);
+    const theNextPiece = createNewPlayer(freshStage);
+
     setStage(freshStage);
-    setPlayer(createNewPlayer(freshStage));
+    setPlayer(firstPlayer);
+    setNextPiece(theNextPiece.tetromino);
     setGameStarted(true);
     setScore(0);
     setGameOver(false);
@@ -124,7 +129,7 @@ const Tetris = () => {
       
      
       if (linesCleared > 0) {
-        const linePoints = [10, 30, 50, 80]; 
+        const linePoints = [100, 300, 500, 800]; 
         const points = linePoints[Math.min(linesCleared - 1, linePoints.length - 1)];
         setScore(prevScore => prevScore + points);
       }
@@ -133,17 +138,25 @@ const Tetris = () => {
       setStage(cleanedStage);
       
       
-      const newPlayer = createNewPlayer(cleanedStage);
+      
+      const newPlayer = {
+        position: { x: Math.floor((cleanedStage[0].length / 2)) - 2, y: 0 },
+        tetromino: nextPiece,
+      };
+
+      const newNextPiece = createNewPlayer(cleanedStage);
+
       if (checkCollision(newPlayer.position, newPlayer.tetromino.shape, cleanedStage)) {
         setGameOver(true);
         setGameStarted(false);
       } else {
         setPlayer(newPlayer);
+        setNextPiece(newNextPiece.tetromino);
       }
       
       return prev;
     });
-  }, [checkCollision, removeLine, stage]);
+  }, [checkCollision, removeLine, stage, nextPiece]);
 
   const rotatePlayer = useCallback(() => {
     setPlayer(prev => {
@@ -226,10 +239,13 @@ const Tetris = () => {
     <div className="tetris-container">
       <h2>Tetris</h2>
       <div className="game-wrapper">
-        <LeftControls 
-          movePlayer={movePlayer}
-          dropPlayer={dropPlayer}
-        />
+        <div className="left-panel">
+          <NextPiece piece={nextPiece} />
+          <LeftControls 
+            movePlayer={movePlayer}
+            dropPlayer={dropPlayer}
+          />
+        </div>
         <Stage stage={displayStage} />
         <RightControls
           startGame={startGame}

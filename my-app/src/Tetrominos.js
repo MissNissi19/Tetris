@@ -1,13 +1,13 @@
 
 
 export const Tetrominos = {
-        0: {shape: [0,0, 0], color: "#F0FFFF", touched: false },
+        0: {shape: [0,0, 0], color: "#242038", touched: false }, 
         I: {shape: [
             ["I", 0, 0, 0], 
             ["I", 0, 0, 0], 
             ["I", 0, 0, 0], 
             ["I", 0, 0, 0]], 
-           color: "#FCEC0B", 
+           color: "#FFA500", 
            touched: false,
         },
         
@@ -16,7 +16,7 @@ export const Tetrominos = {
             ["J","J","J"],
             [0,   0,   0]
             ], 
-           color: "#094A20",
+           color: "#D300FF", 
            touched: false,
         },
 
@@ -25,7 +25,7 @@ export const Tetrominos = {
             ["L",  0, 0],
             ["L", "L", 0]
             ], 
-           color: "#95054F",
+           color: "#FF007F", 
            touched: false,
         },
 
@@ -34,8 +34,8 @@ export const Tetrominos = {
                 ["S",   "S", 0],
                 [0, 0, 0]
             ], 
-            color: "#545962",
-            touched: false,
+            color: "#39FF14", 
+           touched: false,
         },
 
         T:{ shape: [
@@ -43,7 +43,7 @@ export const Tetrominos = {
                 [0,   "T",  0],
                 [0, 0,   0]
             ], 
-            color: "#FF69B4",
+            color: "#00FFFF", 
             touched: false,
         },
 
@@ -52,7 +52,7 @@ export const Tetrominos = {
                 [0,   "Z",  "Z"],
                 [0, 0,   0]
             ], 
-            color: "#5A1A87",
+            color: "#00FF00", 
             touched: false,
         },
 
@@ -62,7 +62,7 @@ export const Tetrominos = {
               ["O", "O", 0],
               [0, 0, 0]
             ],
-            color: "#40E0D0",
+            color: "#F9F900", 
             touched: false,
           }
 }
