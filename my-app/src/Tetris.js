@@ -156,7 +156,7 @@ const Tetris = () => {
       
       return prev;
     });
-  }, [checkCollision, removeLine, stage, nextPiece]);
+  }, [checkCollision, removeLine, stage, nextPiece, score]);
 
   const rotatePlayer = useCallback(() => {
     setPlayer(prev => {
@@ -200,21 +200,21 @@ const Tetris = () => {
   
   useEffect(() => {
     if (!gameStarted) return;
-    
-    if (intervalId.current) clearInterval(intervalId.current);
-    
+
+    const dropTime = score >= 500 ? 300 : 1000;
+
     const timer = setInterval(() => {
       if (gameStarted) {
         dropPlayer();
       }
-    }, 1000);
-    
+    }, dropTime);
+
     intervalId.current = timer;
-    
+
     return () => {
       if (intervalId.current) clearInterval(intervalId.current);
     };
-  }, [gameStarted, dropPlayer]);
+  }, [gameStarted, dropPlayer, score]);
 
   const displayStage = JSON.parse(JSON.stringify(stage));
   if (gameStarted) {
